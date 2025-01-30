@@ -7,6 +7,9 @@ import java.util.ArrayList;
 Capture c;
 PImage img;
 BufferedImage b;
+int [][] matriceDeJeu = new int [3][3]; // La matrice 3*3 pour stocker l'état du plateau
+boolean nonInitialise = true; //Faux si on a pas encore detecté toutes les cases du plateau, vrai sinon
+
 
 protected Scanner scanner;
 List<topcodes.TopCode> codes;
@@ -22,10 +25,9 @@ void setup() {
   codes = null;
   c = new Capture(this, 640, 480);
   c.start();
-  
   detectedCodes = new ArrayList<Integer>();
   tableDejeux = new ArrayList<Integer>();
-
+  
   CROIX.add(55);
   CROIX.add(79);
   CROIX.add(93);
@@ -38,15 +40,18 @@ void setup() {
   RONDS.add(331);
   RONDS.add(283);
   
-  //pour la taille, couleur et police du texte
-  textSize(48); // Taille du texte (plus grande)
-  textFont(createFont("Verdana", 48)); // Police en gras
-  fill(0); // Couleur du texte (noir)
+  //pour la taille, police et couleur du texte
+  textSize(48);
+  textFont(createFont("Verdana", 48));
+  fill(0);
   //
 }
 
 void draw() {
-  
+  if ((tableDejeux.size() == 9) && nonInitialise){
+    int[][] matriceDeJeu = initialiserMatriceDeJeu();
+    nonInitialise = false;
+  }
   try {
     img = c.copy();
     image(img, 0, 0);
@@ -54,8 +59,7 @@ void draw() {
     b = (BufferedImage) img.getImage();
     codes = scanner.scan(b);
   } catch (Exception e) {}
-    afficherMessage(0); //##########################################################
-
+    
   if (codes != null) {
     if (detectedCodes.size() < 9) {
       for (topcodes.TopCode top : codes) {
@@ -97,11 +101,53 @@ void draw() {
   }
   
   println("Codes détectés (tableDejeux) : " + tableDejeux);
+
+
+  afficherMatrice(matriceDeJeu);
+ // println(tableDejeux.get(2)) ;
+
+  //afficherMessage(0); //##########################################################
+
 }
 
 void captureEvent(Capture c) {
   c.read();
 }
+
+void afficherMatrice(int[][] matrice) { //fais planter le logiciel pour outOfMemoryError
+  for (int ligne = 0; ligne < 3; ligne++) {
+    String ligneString = ""; // Créer une chaîne vide pour chaque ligne
+    for (int colonne = 0; colonne < 3; colonne++) {
+      ligneString += matrice[ligne][colonne] + " "; // Ajouter chaque élément à la ligne
+    }
+    println(ligneString); // Afficher la ligne dans la console
+  }
+}
+
+int[][] initialiserMatriceDeJeu(){
+  int[][] matriceDeJeu = new int [3][3];
+  for (int ligne = 0; ligne <3; ligne ++){
+    for(int colonne =0; colonne <3; colonne ++){
+     matriceDeJeu[ligne][colonne] = tableDejeux.get(colonne+ligne) ; 
+    }
+  }
+  return matriceDeJeu;
+}
+
+//int etatJeu(){
+  //Vérifier si il y a une ligne de croix ou de rond
+  // retourne 1 s'il y a ligne de rond
+  //          2 s'il y a ligne de croix
+  //          3 s'il n'y a pas de ligne
+  //          0 s'il n'y a plus de case libre sur le plateau mais pas de gagnant
+  //modifie matriceDeJeu en fonction du plateau
+  
+ // return 0;}
+ 
+ 
+// il y a 8 lignes différetes pour gagner
+//detecter alignement sur 8 lignes différentes
+//On a une matrice a créer
 
 void drawCross(float x, float y, float size) {
   stroke(255, 0, 0);
@@ -123,6 +169,7 @@ void afficherMessage(int gagnant) {
   //         = 2 pour les croix
   //         = 0 pour egalité
   String message = "il y a un bug";
+  String redemarrer = "\nPress to restart";
   if(gagnant == 0){
     message = "C'est une égalité\nparfaite !!";
   }
@@ -132,11 +179,11 @@ void afficherMessage(int gagnant) {
   else if (gagnant == 2){
     message = "Les croix ont gagnés !\nFélicitations";
   }
-    
-  
   textAlign(CENTER, CENTER); // Aligner le texte au centre
-  text(message, width / 2, height / 2); // Afficher le message
-  delay(2000);
+  text(message+redemarrer, width / 2, height / 2); // Afficher le message
+  while(!keyPressed){ //bloquer l'affichage tant que l'utilisateur n'est pas pret
+    delay(1);
+  }
 }
 
 
