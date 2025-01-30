@@ -37,9 +37,16 @@ void setup() {
   RONDS.add(211);
   RONDS.add(331);
   RONDS.add(283);
+  
+  //pour la taille, couleur et police du texte
+  textSize(48); // Taille du texte (plus grande)
+  textFont(createFont("Verdana", 48)); // Police en gras
+  fill(0); // Couleur du texte (noir)
+  //
 }
 
 void draw() {
+  
   try {
     img = c.copy();
     image(img, 0, 0);
@@ -47,6 +54,7 @@ void draw() {
     b = (BufferedImage) img.getImage();
     codes = scanner.scan(b);
   } catch (Exception e) {}
+    afficherMessage(0); //##########################################################
 
   if (codes != null) {
     if (detectedCodes.size() < 9) {
@@ -109,6 +117,28 @@ void drawCircle(float x, float y, float size) {
   noFill();
   ellipse(x, y, size, size);
 }
+
+void afficherMessage(int gagnant) {
+  // gagnant = 1 pour les ronds
+  //         = 2 pour les croix
+  //         = 0 pour egalité
+  String message = "il y a un bug";
+  if(gagnant == 0){
+    message = "C'est une égalité\nparfaite !!";
+  }
+  else if (gagnant == 1){
+    message = "Les ronds ont gagnés !\nFélicitations";
+  }
+  else if (gagnant == 2){
+    message = "Les croix ont gagnés !\nFélicitations";
+  }
+    
+  
+  textAlign(CENTER, CENTER); // Aligner le texte au centre
+  text(message, width / 2, height / 2); // Afficher le message
+  delay(2000);
+}
+
 
 public PImage getAsImage(BufferedImage bimg) {
   try { 
